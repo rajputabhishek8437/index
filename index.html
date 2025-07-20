@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .filter-buttons {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .filter-buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .filter-buttons button:hover {
+      background-color: #555;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      transition: transform 0.3s;
+      border-radius: 10px;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .lightbox-img {
+      max-width: 80%;
+      max-height: 80%;
+      border-radius: 10px;
+    }
+
+    .lightbox .close,
+    .lightbox .prev,
+    .lightbox .next {
+      position: absolute;
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .close { top: 20px; right: 40px; }
+    .prev { top: 50%; left: 40px; transform: translateY(-50%); }
+    .next { top: 50%; right: 40px; transform: translateY(-50%); }
+
+    @media (max-width: 600px) {
+      .filter-buttons button {
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Image Gallery</h1>
+
+  <div class="filter-buttons">
+    <button data-filter="all">All</button>
+    <button data-filter="nature">Nature</button>
+    <button data-filter="city">City</button>
+    <button data-filter="animals">Animals</button>
+  </div>
+
+  <div class="gallery">
+    <div class="gallery-item" data-category="nature">
+      <img src="https://picsum.photos/id/1015/400/300" alt="Nature 1" />
+    </div>
+    <div class="gallery-item" data-category="city">
+      <img src="https://picsum.photos/id/1011/400/300" alt="City 1" />
+    </div>
+    <div class="gallery-item" data-category="animals">
+      <img src="https://picsum.photos/id/1025/400/300" alt="Animal 1" />
+    </div>
+    <div class="gallery-item" data-category="nature">
+      <img src="https://picsum.photos/id/1016/400/300" alt="Nature 2" />
+    </div>
+    <div class="gallery-item" data-category="city">
+      <img src="https://picsum.photos/id/1019/400/300" alt="City 2" />
+    </div>
+    <div class="gallery-item" data-category="animals">
+      <img src="https://picsum.photos/id/1024/400/300" alt="Animal 2" />
+    </div>
+  </div>
+
+  <div class="lightbox">
+    <span class="close">&times;</span>
+    <img class="lightbox-img" src="" alt=""/>
+    <span class="prev">&#10094;</span>
+    <span class="next">&#10095;</span>
+  </div>
+
+  <script>
+    const galleryItems = document.querySelectorAll(".gallery-item");
+    const lightbox = document.querySelector(".lightbox");
+    const lightboxImg = document.querySelector(".lightbox-img");
+    const closeBtn = document.querySelector(".close");
+    const nextBtn = document.querySelector(".next");
+    const prevBtn = document.querySelector(".prev");
+    const filterButtons = document.querySelectorAll("[data-filter]");
+
+    let currentIndex = 0;
+    let filteredItems = Array.from(galleryItems);
+
+    // Filter buttons
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const filter = button.getAttribute("data-filter");
+        galleryItems.forEach(item => {
+          item.style.display = (filter === "all" || item.dataset.category === filter) ? "block" : "none";
+        });
+        filteredItems = Array.from(galleryItems).filter(item =>
+          filter === "all" || item.dataset.category === filter
+        );
+      });
+    });
+
+    // Lightbox open
+    galleryItems.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        const img = item.querySelector("img");
+        lightbox.style.display = "flex";
+        lightboxImg.src = img.src;
+        currentIndex = Array.from(galleryItems).indexOf(item);
+      });
+    });
+
+    // Lightbox close
+    closeBtn.addEventListener("click", () => {
+      lightbox.style.display = "none";
+    });
+
+    // Next image
+    nextBtn.addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % filteredItems.length;
+      lightboxImg.src = filteredItems[currentIndex].querySelector("img").src;
+    });
+
+    // Previous image
+    prevBtn.addEventListener("click", () => {
+      currentIndex = (currentIndex - 1 + filteredItems.length) % filteredItems.length;
+      lightboxImg.src = filteredItems[currentIndex].querySelector("img").src;
+    });
+  </script>
+</body>
+</html>
